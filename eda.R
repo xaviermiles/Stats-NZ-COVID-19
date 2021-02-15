@@ -25,6 +25,7 @@ custom_theme <- theme(panel.grid.major.x = element_blank(),
                       axis.ticks = element_blank(),
                       panel.background = element_blank(),
                       legend.key = element_blank(),
+                      legend.position = "bottom",
                       plot.title = element_text(hjust = 0.5))
 
 ## Economic measures -----------------------------------------------------------
@@ -47,7 +48,7 @@ activity_plot <- activity %>%
   geom_line(aes(color = Indicator), size = 1) +
   geom_point(aes(color = Indicator)) +
   scale_color_brewer(palette = "Dark2") +
-  labs(title = "Activity measures", x = "", y = "Annual % change") +
+  labs(title = "Economic Activity in New Zealand", x = "", y = "Annual % change") +
   scale_x_date(date_labels = "%b-%y", breaks = "3 months") +
   scale_y_continuous(labels = function(x) {paste(x, "%", sep = "")}, 
                      breaks = activity_breaks_seq) +
@@ -125,13 +126,23 @@ jobseeker_ethnic_perc <- jobseeker_ethnic %>%
   mutate(value = value / jobseeker_total$value)
 
 jobseeker_ethnic_perc_plot <- get_jobseeker_plot(jobseeker_ethnic_perc) + 
-  labs(title = "Percentage of total jobseeker support (work ready) in each ethnicity", 
+  labs(title = "Percentage of total jobseeker population (work ready)", 
        x = "", y = "Percentage") +
   scale_y_continuous(labels = function(x) {paste(100 * x, "%", sep = "")},
                      limits = c(0, 0.5))
 
 jobseeker_ethnic_perc_plot
 ggsave("plots/jobseeker_ethnic_perc.jpeg")
+
+
+# Combine the two jobseeker plots
+jobseeker_combined_plot <- ggpubr::ggarrange(jobseeker_ethnic_plot,
+                                             jobseeker_ethnic_perc_plot,
+                                             common.legend = TRUE,
+                                             legend = "bottom",
+                                             heights = c(4, 20))
+jobseeker_combined_plot
+ggsave("plots/jobseeker_combined.jpeg", width = 14, height = 7)
 
 
 ## Social indicators -----------------------------------------------------------
