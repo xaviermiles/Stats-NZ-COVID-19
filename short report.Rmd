@@ -4,7 +4,6 @@ author: "Xavier Miles"
 date: "15/02/2021"
 output:
   pdf_document: default
-  html_document: default
 ---
 
 ## Data Cleaning and Choosing
