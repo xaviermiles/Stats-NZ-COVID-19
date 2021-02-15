@@ -1,0 +1,22 @@
+---
+title: "short report"
+author: "Xavier Miles"
+date: "15/02/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Unemployment
+
+COVID-19 has caused major disruption to the lifestyles of New Zealander households and firms, which has caused a change in the types of goods and services demanded and supplied. 
+Most notably, the global recession experienced during and after COVID-19 has led to a increase of unemployment in the New Zealand job market. A key measure on unemployment is the number of people on the jobseeker support, which provides financial support to unemployed individuals who are actively searching and applying to jobs. All ethnicities showed an increase in the number of people on jobseeker support, but the increase was larger for some ethnicities, as shown in Figure 1.
+
+```{r cars, figures-side, fig.show="hold", out.width="50%", echo=FALSE}
+knitr::include_graphics(c("./plots/jobseeker_ethnic.jpeg", 
+                          "./plots/jobseeker_ethnic_perc.jpeg"))
+```
