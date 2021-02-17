@@ -1,7 +1,5 @@
 # Exploratory data analysis
 
-# > highchart ?
-
 # Set working directory to wherever this script is located
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
@@ -28,9 +26,8 @@ custom_theme <- theme(panel.grid.major.x = element_blank(),
                       legend.position = "bottom",
                       plot.title = element_text(hjust = 0.5))
 
-## Economic measures -----------------------------------------------------------
+## Economic activity measures --------------------------------------------------
 
-# Economic activity
 activity <- portal_data %>%
   filter(sub_series_name %in% c("New Zealand Activity Index (NZAC)",
                                 "Retail sales index")) %>%
@@ -48,7 +45,8 @@ activity_plot <- activity %>%
   geom_line(aes(color = Indicator), size = 1) +
   geom_point(aes(color = Indicator)) +
   scale_color_brewer(palette = "Dark2") +
-  labs(title = "Economic Activity in New Zealand", x = "", y = "Annual % change") +
+  labs(title = "Economic Activity in New Zealand", 
+       x = "", y = "Annual % change") +
   scale_x_date(date_labels = "%b-%y", breaks = "3 months") +
   scale_y_continuous(labels = function(x) {paste(x, "%", sep = "")}, 
                      breaks = activity_breaks_seq) +
@@ -56,28 +54,6 @@ activity_plot <- activity %>%
 
 activity_plot
 ggsave("plots/activity.jpeg", activity_plot)
-
-
-# Confidence measures
-confidence <- portal_data %>%
-  filter(indicator_name == "Economic sentiment" |
-           (indicator_name == "Manufacturing index" & 
-              series_name == "Performance of manufacturing (overall index)")) %>%
-  select(-c(class, category, series_name, sub_series_name)) %>%
-  rename(Indicator = indicator_name, date = parameter) %>%
-  mutate(date = as.Date(date, format = "%Y-%m-%d")) %>%
-  filter(date >= as.Date("2017-02-28"))
-
-confidence_plot <- confidence %>%
-  ggplot(aes(x = date, y = value, group = Indicator)) +
-  geom_line(aes(color = Indicator)) +
-  scale_color_brewer(palette = "Dark2") +
-  labs(title = "Confidence metrics", x = "", y = "Index") +
-  scale_x_date(date_labels = "%b-%y", breaks = "3 months") +
-  custom_theme
-
-confidence_plot
-ggsave("plots/confidence.jpeg")
 
 
 ## Jobseeker support by ethnicity ----------------------------------------------
@@ -96,7 +72,7 @@ get_jobseeker_plot <- function(jobseeker_subset) {
 # Extract 'jobseeker (work ready) by ethnicity' data from overall dataset
 jobseeker_data <- portal_data %>%
   filter(indicator_name == "Jobseeker support by ethnicity - work ready") %>%
-  select(series_name, parameter, value, units, date_last_updated) %>%
+  select(series_name, parameter, value, date_last_updated) %>%
   rename(Ethnicity = series_name, date = parameter) %>%
   mutate(date = as.Date(date, format = "%Y-%m-%d"))
 
@@ -108,7 +84,8 @@ jobseeker_ethnic <- jobseeker_data %>%
   mutate(Ethnicity = factor(Ethnicity, levels = ethnic_order))
 
 jobseeker_ethnic_plot <- get_jobseeker_plot(jobseeker_ethnic) +
-  labs(title = "Number on jobseeker support (work ready)", x = "", y = "Number") +
+  labs(title = "Number on jobseeker support (work ready)", 
+       x = "", y = "Number") +
   scale_y_continuous(labels = function(x) {paste(x / 1000, "k", sep = "")}, 
                      limits = c(0, 60000))
 
@@ -116,14 +93,15 @@ jobseeker_ethnic_plot
 ggsave("plots/jobseeker_ethnic.jpeg")
 
 
-# Plot jobseeker data, with the per-ethnicity percentages of the total number
-# of jobseeker beneficiaries at each timepoint
-jobseeker_total <- jobseeker_data %>%
-  filter(Ethnicity == "Total - work ready")
+# Plot the per-ethnicity percentages of the total number of jobseeker
+# beneficiaries
+jobseeker_total_values <- jobseeker_data %>%
+  filter(Ethnicity == "Total - work ready") %>%
+  .$value
 
 jobseeker_ethnic_perc <- jobseeker_ethnic %>%
   group_by(Ethnicity) %>%
-  mutate(value = value / jobseeker_total$value)
+  mutate(value = value / jobseeker_total_values)
 
 jobseeker_ethnic_perc_plot <- get_jobseeker_plot(jobseeker_ethnic_perc) + 
   labs(title = "Percentage of total jobseeker population (work ready)", 
@@ -161,7 +139,8 @@ overall_wellbeing_plot <- overall_wellbeing %>%
   geom_ribbon(aes(ymin = `Percentage of respondents_lower`,
                   ymax = `Percentage of respondents_upper`), 
               alpha = 0.3, fill = "grey60") +
-  labs(title = "Respondents who said their overall wellbeing at the current alert level is worse than usual", x = "", y = "Percentage") +
+  labs(title = "Respondents who said their overall wellbeing at the current alert level is worse than usual",
+       x = "", y = "Percentage") +
   scale_x_date(date_labels = "%d-%b", breaks = "2 weeks") +
   scale_y_continuous(labels = function(x) {paste(x, "%", sep = "")}, 
                      limits = c(0, 30)) +
